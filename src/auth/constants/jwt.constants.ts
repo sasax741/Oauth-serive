@@ -1,3 +1,8 @@
+import { ConfigService } from '@nestjs/config';
+
 export const jwtConstants = {
-    secret: "palabra de prueba" // esto despues lo tengo que cambiar por una ENV
-}
+  get secret() {
+    const configService = new ConfigService();
+    return configService.get<string>('JWT_SECRET');
+  },
+};
