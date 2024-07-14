@@ -43,11 +43,6 @@ export class AuthService {
             throw new UnauthorizedException('password is wrong');
         }
         
-
-        const header = {
-            
-        }
-
         const payload = {
             id: user.id,
             email: user.email,
