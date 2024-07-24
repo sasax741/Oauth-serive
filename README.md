@@ -63,12 +63,15 @@ $ npm run test:cov
 Para Levantar el projecto es necesario crear el ENV. Example:
 
 ```bash
-
+#DATABASE
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=root
 DB_PASSWORD=alga.corcho.porton
-DB_NAME=waves
-JWT_SECRET=palabra_de_prueba
+DB_NAME=auth
 
-```
+#TOKEN
+JWT_SECRET=w4v3s
+
+#APP
+PORT=3001
