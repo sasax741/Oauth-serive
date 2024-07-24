@@ -30,7 +30,6 @@ export class AuthController {
     @Delete('deleteUser/:id')
     deleteUser(@Param('id') id: number){
         return this.authService.deleteUser(id);
-        //return `esto te llega ${id}`
     }
 
 }

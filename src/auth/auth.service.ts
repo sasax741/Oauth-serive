@@ -70,7 +70,6 @@ export class AuthService {
         }
 
         return this.usersService.remove(id);
-        //return `llegue ${id}`
     }
 
 }
