@@ -5,14 +5,19 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt'
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+//import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+  //  private readonly client:string
 
     constructor(
         private readonly usersService: UsersService,
-        private readonly jwtService: JwtService
-    ){}
+        private readonly jwtService: JwtService,
+      //  private readonly configService: ConfigService
+    ){
+    //    this.client = this.configService.get<string>('CLIENT')
+    }
 
     
     async register({name, lastName, email, password, client}: RegisterDto){ //esto es el registerDto
@@ -31,15 +36,18 @@ export class AuthService {
         })
     }
 
-    async login({email, password}: LoginDto){
+    async login({email, password, client}: LoginDto){
         const user = await this.usersService.findOneByEmail(email);
         if (!user) {
             throw new UnauthorizedException('email is wrong');
-
         }
 
         if(user.daletedAt != null){
-            throw new BadRequestException('the user has already been deleted')
+            throw new BadRequestException('the user has already been deleted');
+        }
+
+        if (user.client != client) {
+            throw new UnauthorizedException('unauthorized user for this client');
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -61,12 +69,15 @@ export class AuthService {
         };
     }
 
-    async deleteUser(id:number){
+    async deleteUser(id:number, client:string){
 
         const userActive = await this.usersService.findOne(id)
 
         if(userActive.daletedAt != null){
             throw new BadRequestException('the user has already been deleted') 
+        }
+        if (userActive.client != client) {
+            throw new BadRequestException('unauthorized user for this client')
         }
 
         return this.usersService.remove(id);
