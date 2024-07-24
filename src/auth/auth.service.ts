@@ -15,7 +15,7 @@ export class AuthService {
     ){}
 
     
-    async register({name, lastName, email, password}: RegisterDto){ //esto es el registerDto
+    async register({name, lastName, email, password, client}: RegisterDto){ //esto es el registerDto
         const user = await this.usersService.findOneByEmail(email)
 
         if (user) {
@@ -26,7 +26,8 @@ export class AuthService {
             name, 
             lastName, 
             email, 
-            password: await bcrypt.hash(password ,10)
+            password: await bcrypt.hash(password ,10),
+            client
         })
     }
 
@@ -35,6 +36,10 @@ export class AuthService {
         if (!user) {
             throw new UnauthorizedException('email is wrong');
 
+        }
+
+        if(user.daletedAt != null){
+            throw new BadRequestException('the user has already been deleted')
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -59,6 +64,18 @@ export class AuthService {
             email,
             token,
         };
+    }
+
+    async deleteUser(id:number){
+
+        const userActive = await this.usersService.findOne(id)
+
+        if(userActive.daletedAt != null){
+            throw new BadRequestException('the user has already been deleted') 
+        }
+
+        return this.usersService.remove(id);
+        //return `llegue ${id}`
     }
 
 }
