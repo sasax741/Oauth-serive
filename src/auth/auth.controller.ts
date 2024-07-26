@@ -34,8 +34,9 @@ export class AuthController {
         @Param('id') id: number,
         @Request() req
     ){
-        const client:string = req.aud
-        return this.authService.deleteUser(id, client);
+        const user:object = req.user
+        return this.authService.deleteUser(id, user);
+        //return id;
     }
 
 }
