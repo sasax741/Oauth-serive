@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
-
+import {JwtPayload} from '../interfaces/jwt-payload.interface'
 import * as bcrypt from 'bcrypt'
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -74,18 +74,18 @@ export class AuthService {
         };
     }
 
-    async deleteUser(id:number, user){
+    async deleteUser(id:number, userToken:JwtPayload){
 
         const userActive = await this.usersService.findOne(id)
         console.log("de la base---------------------------------",userActive)
-        console.log("token------------------------------",user)
+        console.log("token------------------------------",userToken)
         if(userActive == null){
             throw new BadRequestException('the user has already been deleted') 
         }
-        if (userActive.client != user.aud) {
+        if (userActive.client != userToken.aud) {
             throw new BadRequestException('unauthorized user for this client')
         }
-        if (userActive.id != user.sub) {
+        if (userActive.id != userToken.sub) {
             throw new BadRequestException('unauthorized token for this user')
         }
 

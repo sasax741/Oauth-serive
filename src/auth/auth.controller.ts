@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Delete, Param, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Post, Delete, Param, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './guard/auth.guard';
+import {JwtPayload} from '../interfaces/jwt-payload.interface'
 
 @Controller('auth')
 export class AuthController {
@@ -32,11 +33,9 @@ export class AuthController {
     @UseGuards(AuthGuard)
     deleteUser(
         @Param('id') id: number,
-        @Request() req
+        @Body() body:JwtPayload
     ){
-        const user:object = req.user
-        return this.authService.deleteUser(id, user);
-        //return id;
+        return this.authService.deleteUser(id, body);
     }
 
 }

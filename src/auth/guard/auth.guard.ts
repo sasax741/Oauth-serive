@@ -11,20 +11,20 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
+    const request:Request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("The token is non-existent");
     }
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.jwtConfigService.secret,
       });
-      request['user'] = payload;
+      request.body = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Unknown token error");
     }
 
     return true;
