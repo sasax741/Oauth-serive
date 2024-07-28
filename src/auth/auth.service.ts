@@ -1,21 +1,25 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
-
+import {JwtPayload} from '../interfaces/jwt-payload.interface'
 import * as bcrypt from 'bcrypt'
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { v4 as uuidv4 } from 'uuid';
+
 
 @Injectable()
 export class AuthService {
 
+
     constructor(
         private readonly usersService: UsersService,
-        private readonly jwtService: JwtService
-    ){}
+        private readonly jwtService: JwtService,
+    ){
+    }
 
     
-    async register({name, lastName, email, password}: RegisterDto){ //esto es el registerDto
+    async register({name, lastName, email, password, client}: RegisterDto){ 
         const user = await this.usersService.findOneByEmail(email)
 
         if (user) {
@@ -26,15 +30,23 @@ export class AuthService {
             name, 
             lastName, 
             email, 
-            password: await bcrypt.hash(password ,10)
+            password: await bcrypt.hash(password ,10),
+            client
         })
     }
 
-    async login({email, password}: LoginDto){
+    async login({email, password, client}: LoginDto){
         const user = await this.usersService.findOneByEmail(email);
         if (!user) {
             throw new UnauthorizedException('email is wrong');
+        }
 
+        if(user.daletedAt != null){
+            throw new BadRequestException('the user has already been deleted');
+        }
+
+        if (user.client != client) {
+            throw new UnauthorizedException('unauthorized user for this client');
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -42,10 +54,16 @@ export class AuthService {
         if (!isPasswordValid) {
             throw new UnauthorizedException('password is wrong');
         }
+        const timestamp = Math.floor(Date.now() / 1000);
+        const jti = `${user.id}-${timestamp}-${uuidv4()}`;
         
         const payload = {
-            id: user.id,
             email: user.email,
+            sub: user.id,
+            iss: "auth waves",
+            aud: user.client,
+            nbf: timestamp,
+            jti: jti
         }
 
         const token = await this.jwtService.signAsync(payload)
@@ -54,6 +72,24 @@ export class AuthService {
             email,
             token,
         };
+    }
+
+    async deleteUser(id:number, userToken:JwtPayload){
+
+        const userActive = await this.usersService.findOne(id)
+        console.log("de la base---------------------------------",userActive)
+        console.log("token------------------------------",userToken)
+        if(userActive == null){
+            throw new BadRequestException('the user has already been deleted') 
+        }
+        if (userActive.client != userToken.aud) {
+            throw new BadRequestException('unauthorized user for this client')
+        }
+        if (userActive.id != userToken.sub) {
+            throw new BadRequestException('unauthorized token for this user')
+        }
+
+        return this.usersService.remove(id);
     }
 
 }

@@ -11,5 +11,9 @@ export class LoginDto {
     @MinLength(6)
     password: string;
 
+    @IsString()
+    @MinLength(1)
+    @Transform(({value}) => value.trim())
+    client:string
 
 }
