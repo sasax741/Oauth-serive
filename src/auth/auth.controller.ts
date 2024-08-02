@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Delete, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Delete, Param, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -11,6 +11,22 @@ export class AuthController {
     constructor(
         private readonly authService: AuthService,
     ){}
+
+    @Get(':id')
+    @UseGuards(AuthGuard)
+    getUser(
+        @Param('id') id:number
+    )
+    {
+        return this.authService.getUser(id);
+    }
+
+    @Get()
+    @UseGuards(AuthGuard)
+    getUsers()
+    {
+        return this.authService.getUsers();
+    }
 
     @Post('register')
     register(

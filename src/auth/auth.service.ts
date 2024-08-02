@@ -35,6 +35,15 @@ export class AuthService {
         })
     }
 
+    async getUsers(){
+        return this.usersService.findAll();
+    }
+
+    async getUser(id:number){
+        return this.usersService.findOne(id)
+    }
+
+
     async login({email, password, client}: LoginDto){
         const user = await this.usersService.findOneByEmail(email);
         if (!user) {

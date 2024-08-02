@@ -21,9 +21,8 @@ export class UsersService {
     return this.userRepository.findOneBy({ email })
   }
 
-
   findAll() {
-    return `This action returns all users`;
+    return this.userRepository.find();
   }
 
   findOne(id: number) {
