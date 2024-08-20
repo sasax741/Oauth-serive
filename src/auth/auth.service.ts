@@ -85,9 +85,8 @@ export class AuthService {
 
     async deleteUser(id:number, userToken:JwtPayload){
 
-        const userActive = await this.usersService.findOne(id)
-        console.log("de la base---------------------------------",userActive)
-        console.log("token------------------------------",userToken)
+        const userActive = await this.getUser(id)
+        
         if(userActive == null){
             throw new BadRequestException('the user has already been deleted') 
         }
