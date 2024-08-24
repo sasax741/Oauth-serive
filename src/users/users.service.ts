@@ -21,13 +21,12 @@ export class UsersService {
     return this.userRepository.findOneBy({ email })
   }
 
-
   findAll() {
-    return `This action returns all users`;
+    return this.userRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return this.userRepository.findOneBy({id});
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -35,6 +34,6 @@ export class UsersService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    return this.userRepository.softDelete({id})
   }
 }

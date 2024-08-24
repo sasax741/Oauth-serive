@@ -22,6 +22,9 @@ export class User {
     @Column({nullable: false})
     password: string;
 
+    @Column()
+    client: string;
+
     @CreateDateColumn()
     createdAt: Date;
 
